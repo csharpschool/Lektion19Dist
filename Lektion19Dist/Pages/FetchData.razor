@@ -1,57 +1,55 @@
 ﻿@page "/fetchdata"
+@using Lektion19Dist.Classes;
 @inject HttpClient Http
 
 <PageTitle>Weather forecast</PageTitle>
 
-<h1>Weather forecast</h1>
-
-<p>This component demonstrates fetching data from the server.</p>
-
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Temp. (C)</th>
+            <th>Temp. (F)</th>
+            <th>Summary</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cust in Customers)
+        {
+            foreach (var purch in cust.Purchases)
             {
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <td>@cust.Name</td>
+                    <td>@purch.Title</td>
                 </tr>
             }
-        </tbody>
-    </table>
-}
+        }
+    </tbody>
+</table>
+
 
 @code {
-    private WeatherForecast[]? forecasts;
+    List<Customer> Customers { get; set; } = new();
 
-    protected override async Task OnInitializedAsync()
+    class Customer
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        public string Name { get; set; }
+
+        public List<Book> Purchases { get; init; } = new();
+
+        public void Add(Book book) => Purchases.Add(book);
     }
 
-    public class WeatherForecast
+    protected override void OnInitialized()
     {
-        public DateOnly Date { get; set; }
+        var cust1 = new Customer() { Name = "John" };
+        cust1.Add(new Book(1, "Title 1"));
+        cust1.Add(new Book(2, "Title 2"));
+        var cust2 = new Customer() { Name = "Jane" };
+        cust2.Add(new Book(3, "Title 3"));
 
-        public int TemperatureC { get; set; }
-
-        public string? Summary { get; set; }
-
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        Customers.Add(cust1);
+        Customers.Add(cust2);
     }
+
 }
